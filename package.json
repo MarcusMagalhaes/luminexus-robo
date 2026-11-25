@@ -1,0 +1,12 @@
+{
+  "name": "luminway-robo-whatsapp",
+  "private": true,
+  "type": "module",
+  "description": "Robô do WhatsApp do Luminway: roda no GitHub Actions quando há mensagens na fila",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node index.mjs" },
+  "dependencies": {
+    "baileys": "7.0.0-rc14",
+    "pino": "9.6.0"
+  }
+}

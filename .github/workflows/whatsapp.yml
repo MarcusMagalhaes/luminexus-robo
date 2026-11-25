@@ -1,0 +1,38 @@
+# Robô do WhatsApp do Luminway. Não fica ligado: o Worker do site (cron de 2 min) dispara este workflow quando há
+# pareamento pedido ou um lote de mensagens que já pode sair. Os horários abaixo são só reserva (se o Worker falhar).
+# Uma rodada por vez; cada rodada envia um lote por igreja e termina.
+# Este repositório é PÚBLICO de propósito (minutos do Actions ilimitados): o código não tem segredos e o log só tem ids e
+# contagens, nunca telefone, nome ou texto de mensagem. A URL e a chave publishable do Supabase abaixo são públicas
+# (estão no site). Segredos (Settings › Secrets › Actions): SEGREDO_WHATSAPP e CHAVE_SESSAO.
+name: WhatsApp
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 12,16,20 * * *'   # reserva: 09:20, 13:20 e 17:20 de Brasília
+
+concurrency:
+  group: whatsapp
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  robo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --no-fund --no-audit
+      - run: node index.mjs
+        env:
+          SUPABASE_URL: https://kupqxvovjfojeeksigwm.supabase.co
+          SUPABASE_ANON_KEY: sb_publishable_pAjoBMUJG7_0iKN3GEcOAg_UdP2ORfl
+          SEGREDO_WHATSAPP: ${{ secrets.SEGREDO_WHATSAPP }}
+          CHAVE_SESSAO: ${{ secrets.CHAVE_SESSAO }}
+          TEMPO_MAX_MIN: '15'
